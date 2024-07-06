@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  mysqldb:
+    image: mysql:8.2.0
+    container_name: sqlcontainer
+    restart: always
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: db7305
+      MYSQL_USER: sql7305
+      MYSQL_PASSWORD: 3036197354
+      MYSQL_ROOT_PASSWORD: root7305
+  myadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: admcontainer
+    restart: always
+    depends_on:
+      - mysqldb
+    ports:
+      - 9000:80
+    environment:
+      PMA_HOST: mysqldb
+      PMA_PORT: 3306
+  web7305:
+    container_name: webcontainer
+    restart: always
+    volumes:
+      - ./public_html:/var/www/html
+    build:
+      context: .
+      dockerfile: WebDockerfile
+    depends_on:
+      - mysqldb
+    ports:
+      - 9080:80
