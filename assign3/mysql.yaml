@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+  labels:
+    app: mysql-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-pod
+  template:
+    metadata:
+      labels:
+        app: mysql-pod
+    spec:
+      volumes:
+        - name: mysqldata
+          persistentVolumeClaim:
+            claimName: 7305demoblob-pvc-mysql
+      containers:
+        - name: mysqldb
+          image: mysql:8.2.0
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - mountPath: '/var/lib/mysql'
+              name: mysqldata
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: mysql-db
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-password
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-root-password
+        - name: phpadmin
+          image: phpmyadmin/phpmyadmin
+          ports:
+            - containerPort: 80
+          env:
+            - name: PMA_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: pma_host
+            - name: PMA_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: pma_port
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+spec:
+  selector:
+    app: mysql-pod
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: phpadmin-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: mysql-pod
+  ports:
+    - protocol: TCP
+      port: 9000
+      targetPort: 80

@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-deployment
+  labels:
+    app: web-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-pod
+  template:
+    metadata:
+      labels:
+        app: web-pod
+    spec:
+      volumes:
+        - name: webdata
+          persistentVolumeClaim:
+            claimName: 7305demoblob-pvc-web
+      containers:
+        - name: webcontainer
+          image: everlynwang/comp7305-assign2:0.0.1
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: '/var/www/html'
+              name: webdata
+          env:
+            - name: PMA_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: pma_host
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-password
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: mysql-db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: web-pod
+  ports:
+    - protocol: TCP
+      port: 9080
+      targetPort: 80

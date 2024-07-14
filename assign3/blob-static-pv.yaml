@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: 7305demoblob-pv-mysql
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: azureblob-nfs-premium
+  csi:
+    driver: blob.csi.azure.com
+    # make sure volumeid is unique for every identical storage blob container in the cluster
+    # character `#` and `/` are reserved for internal use and cannot be used in volumehandle
+    volumeHandle: 7305demoblob-nfs-mysql
+    volumeAttributes:
+      resourceGroup: comp7305wyl
+      storageAccount: blobwyl
+      containerName: mysqlcontainer
+      protocol: nfs
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: 7305demoblob-pv-web
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: azureblob-nfs-premium
+  csi:
+    driver: blob.csi.azure.com
+    # make sure volumeid is unique for every identical storage blob container in the cluster
+    # character `#` and `/` are reserved for internal use and cannot be used in volumehandle
+    volumeHandle: 7305demoblob-nfs-web
+    volumeAttributes:
+      resourceGroup: comp7305wyl
+      storageAccount: blobwyl
+      containerName: webcontainer
+      protocol: nfs

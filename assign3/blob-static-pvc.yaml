@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: 7305demoblob-pvc-mysql
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: 7305demoblob-pv-mysql
+  storageClassName: azureblob-nfs-premium
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: 7305demoblob-pvc-web
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: 7305demoblob-pv-web
+  storageClassName: azureblob-nfs-premium
